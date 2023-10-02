@@ -11,35 +11,35 @@ import (
 	"github.com/bluesbaker/cropimg/pkg/imageutil"
 )
 
+type ProgramFlags struct {
+	Source string
+	Output string
+	Width  int
+	Height int
+	Left   int
+	Top    int
+}
+
+var flags ProgramFlags = ProgramFlags{}
+
+func init() {
+	// init default flags from ./flags.go
+	initFlags(&flags)
+}
+
 func main() {
-	// flags
-	imageSource := flag.String("source", "", "image(s) source")
-	format := flag.String(
-		"format",
-		"{dir}/{name}_cropped.{ext}",
-		"output file format:\n"+
-			"\t{dir} - directory\n"+
-			"\t{name} - file name\n"+
-			"\t{ext} - file extension\n"+
-			"\t{time} - current time(24-59-59)\n"+
-			"\t{date} - current date(01.02.2003)\n"+
-			"\t{index} - file index\n")
-	width := flag.Int("width", 0, "width")
-	height := flag.Int("height", 0, "height")
-	left := flag.Int("left", 0, "left offset")
-	top := flag.Int("top", 0, "top offset")
 	flag.Parse()
 
 	// check image(s) source
-	if *imageSource == "" {
-		fmt.Printf("Image source '%s' is empty\n", *imageSource)
+	if flags.Source == "" {
+		fmt.Printf("Image source '%s' is empty\n", flags.Source)
 		os.Exit(1)
 	}
 
 	// get image(s)
-	images, err := filepath.Glob(*imageSource)
+	images, err := filepath.Glob(flags.Source)
 	if err != nil {
-		fmt.Println("Pattern is not readable", *imageSource)
+		fmt.Println("Pattern is not readable", flags.Source)
 		os.Exit(1)
 	}
 
@@ -53,10 +53,10 @@ func main() {
 		}
 
 		// crop
-		imageFile = imageutil.Crop(imageFile, *width, *height, *left, *top)
+		imageFile = imageutil.Crop(imageFile, flags.Width, flags.Height, flags.Left, flags.Top)
 
 		// save
-		filePath := formatFilePath(imagePath, *format, i+1)
+		filePath := formatFilePath(imagePath, flags.Output, i+1)
 		imagePath, err := imageutil.Save(imageFile, imageExt, filePath)
 		if err != nil {
 			fmt.Println("Save image error:", err)
