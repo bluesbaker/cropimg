@@ -1,7 +1,51 @@
 # cropimg
 A simple tool for cropping images
 
-## Usage
+## Build
 ```bash
-$./cropimg.exe -source "./*.png" -width 100 -height 100 -left 0 -top 0 -postfix "_cropped" 
+$ go build -o .\bin\cropimg.exe .\cropimg.go .\flags.go
 ```
+
+## How to use?
+Example:
+```bash
+$ ...\cropimg.exe -s ".\**\*.png" -w 100 -h 200 -l 30 -t 40 -o "{dir}\{name}_{time}.{ext}"  
+```
+
+Flags:
+```bash
+-source|-s <string>
+    image(s) source:
+        "./<image>.jpg" - .jpg-image
+        "./*.png" - .png-images from current directory
+        "./**/**/*.gif" - .gif-images from deep(2) directories
+    
+-width|-w <int>
+    width
+
+-height|-h <int>
+    height
+
+-top|-t <int>
+    top offset
+
+-left|-l <int>
+    left offset
+
+-output|-o <string>
+    output file format:
+        {dir} - directory
+        {name} - file name
+        {ext} - file extension
+        {time} - current time(24-59-59)
+        {date} - current date(01.02.2003)
+        {index} - file index
+    default: {dir}/{name}_cropped.{ext}
+```
+
+## Version
+0.2.0
+
+### Author
+___
+Konstantin S.G. <github.com/bluesbaker>
