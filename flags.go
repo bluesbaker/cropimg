@@ -7,6 +7,16 @@ import (
 	"path/filepath"
 )
 
+type ProgramFlags struct {
+	Source string
+	Output string
+	Width  int
+	Height int
+	Left   int
+	Top    int
+	Ignore string
+}
+
 func initFlags(flags *ProgramFlags) {
 	const (
 		defaultSource = ""
@@ -15,6 +25,7 @@ func initFlags(flags *ProgramFlags) {
 		defaultHeight = 0
 		defaultLeft   = 0
 		defaultTop    = 0
+		defaultIgnore = ""
 	)
 	const (
 		usageSource = "image(s) source:\n" +
@@ -27,11 +38,13 @@ func initFlags(flags *ProgramFlags) {
 			"\t\t{ext} - file extension\n" +
 			"\t\t{time} - current time(24-59-59)\n" +
 			"\t\t{date} - current date(01.02.2003)\n" +
-			"\t\t{index} - file index"
+			"\t\t{index} - file index\n" +
+			"\t\t{local} - local file index"
 		usageWidth  = "width"
 		usageHeight = "height"
 		usageLeft   = "left offset"
 		usageTop    = "top offset"
+		usageIgnore = "ignored image(s) source"
 	)
 
 	flag.StringVar(&flags.Source, "source", defaultSource, usageSource)
@@ -51,6 +64,9 @@ func initFlags(flags *ProgramFlags) {
 
 	flag.IntVar(&flags.Top, "top", defaultTop, usageTop)
 	flag.IntVar(&flags.Top, "t", defaultTop, usageTop)
+
+	flag.StringVar(&flags.Ignore, "ignore", defaultIgnore, usageIgnore)
+	flag.StringVar(&flags.Ignore, "i", defaultIgnore, usageIgnore)
 
 	flag.Usage = printUsage
 }
