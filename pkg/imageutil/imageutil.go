@@ -91,5 +91,5 @@ func FormatedOutput(imageInfo *ImageInfo, format string, index, localIndex int) 
 		output = strings.ReplaceAll(output, key, value)
 	}
 
-	return fmt.Sprintf(output, imageInfo.Dir, imageInfo.Name, imageInfo.Ext, timeNow, dateNow, index)
+	return fmt.Sprintf(output, imageInfo.Dir, imageInfo.Name, imageInfo.Ext, timeNow, dateNow, index, localIndex)
 }
