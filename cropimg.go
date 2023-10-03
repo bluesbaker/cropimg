@@ -5,20 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
-	"time"
 
-	"github.com/bluesbaker/cropimg/pkg/imageutil"
+	iu "github.com/bluesbaker/cropimg/pkg/imageutil"
 )
-
-type ProgramFlags struct {
-	Source string
-	Output string
-	Width  int
-	Height int
-	Left   int
-	Top    int
-}
 
 var flags ProgramFlags = ProgramFlags{}
 
@@ -43,46 +32,48 @@ func main() {
 		os.Exit(1)
 	}
 
+	// get ignored image(s)
+	ignoredImages, err := filepath.Glob(flags.Ignore)
+	if err != nil {
+		fmt.Println("Ignored pattern is not readable", flags.Ignore)
+		os.Exit(1)
+	}
+
+	// drop ignored image(s)
+	for _, ignoredImage := range ignoredImages {
+		for i, image := range images {
+			if image == ignoredImage {
+				images = append(images[:i], images[i+1:]...)
+				break
+			}
+		}
+	}
+
+	dirIndexes := make(map[string]int)
+
 	// crop and save image(s)
-	for i, imagePath := range images {
+	for i, img := range images {
+		fileInfo := iu.GetImageInfo(img)
+
+		dirIndexes[fileInfo.Dir]++
+
 		// open
-		imageFile, imageExt, err := imageutil.Open(imagePath)
+		imageFile, imageExt, err := iu.Open(img)
 		if err != nil {
 			fmt.Println("Open image error:", err)
 			os.Exit(1)
 		}
 
 		// crop
-		imageFile = imageutil.Crop(imageFile, flags.Width, flags.Height, flags.Left, flags.Top)
+		imageFile = iu.Crop(imageFile, flags.Width, flags.Height, flags.Left, flags.Top)
 
 		// save
-		filePath := formatFilePath(imagePath, flags.Output, i+1)
-		imagePath, err := imageutil.Save(imageFile, imageExt, filePath)
+		formatedOutput := iu.FormatedOutput(fileInfo, flags.Output, i+1, dirIndexes[fileInfo.Dir])
+		imagePath, err := iu.Save(imageFile, imageExt, formatedOutput)
 		if err != nil {
 			fmt.Println("Save image error:", err)
 			os.Exit(1)
 		}
 		fmt.Println(imagePath)
 	}
-}
-
-func formatFilePath(filePath, formatString string, index int) string {
-	now := time.Now()
-	timeNow := now.Format("15-04-05")
-	dateNow := now.Format("02.01.2006")
-	baseName := strings.Split(filepath.Base(filePath), ".")
-	name := baseName[0]
-	ext := baseName[1]
-	dir := filepath.Dir(filePath)
-
-	formatedPath := formatString
-	formatedPath = strings.ReplaceAll(formatedPath, "{dir}", "%[1]s")
-	formatedPath = strings.ReplaceAll(formatedPath, "{name}", "%[2]s")
-	formatedPath = strings.ReplaceAll(formatedPath, "{ext}", "%[3]s")
-	formatedPath = strings.ReplaceAll(formatedPath, "{time}", "%[4]s")
-	formatedPath = strings.ReplaceAll(formatedPath, "{date}", "%[5]s")
-	formatedPath = strings.ReplaceAll(formatedPath, "{index}", "%[6]d")
-	formatedPath = fmt.Sprintf(formatedPath, dir, name, ext, timeNow, dateNow, index)
-
-	return formatedPath
 }
