@@ -19,7 +19,11 @@ Flags:
         "./<image>.jpg" - .jpg-image
         "./*.png" - .png-images from current directory
         "./**/**/*.gif" - .gif-images from deep(2) directories
-    
+
+-ignore|-i <string>
+    ignored image(s) source:
+        "./*_cropped.png" - ignore png-images ending with "_cropped.png"
+
 -width|-w <int>
     width
 
@@ -40,11 +44,12 @@ Flags:
         {time} - current time(24-59-59)
         {date} - current date(01.02.2003)
         {index} - file index
+        {local} - local file index
     default: {dir}/{name}_cropped.{ext}
 ```
 
 ## Version
-0.2.0
+0.2.1
 
 ### Author
 ___
