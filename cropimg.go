@@ -49,31 +49,32 @@ func main() {
 		}
 	}
 
+	// file count from directories
 	dirIndexes := make(map[string]int)
 
 	// crop and save image(s)
 	for i, img := range images {
-		fileInfo := iu.GetImageInfo(img)
-
-		dirIndexes[fileInfo.Dir]++
-
 		// open
-		imageFile, imageExt, err := iu.Open(img)
+		imageFile, imageInfo, err := iu.Open(img)
 		if err != nil {
 			fmt.Println("Open image error:", err)
 			os.Exit(1)
 		}
 
+		// increment file count from current directory
+		dirIndexes[imageInfo.Dir]++
+
 		// crop
 		imageFile = iu.Crop(imageFile, flags.Width, flags.Height, flags.Left, flags.Top)
 
 		// save
-		formatedOutput := iu.FormatedOutput(fileInfo, flags.Output, i+1, dirIndexes[fileInfo.Dir])
-		imagePath, err := iu.Save(imageFile, imageExt, formatedOutput)
+		output := imageInfo.Format(flags.Output, i+1, dirIndexes[imageInfo.Dir])
+		imagePath, err := iu.Save(imageFile, imageInfo.Ext, output)
 		if err != nil {
 			fmt.Println("Save image error:", err)
 			os.Exit(1)
 		}
+
 		fmt.Println(imagePath)
 	}
 }
