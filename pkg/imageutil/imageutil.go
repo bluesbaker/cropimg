@@ -22,14 +22,26 @@ type SubImage interface {
 	SubImage(r image.Rectangle) image.Image
 }
 
-func Open(filePath string) (image.Image, string, error) {
+func Open(filePath string) (image.Image, *ImageInfo, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 	defer file.Close()
 
-	return image.Decode(file)
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	baseName := strings.Split(filepath.Base(filePath), ".")
+	imgInfo := &ImageInfo{
+		Name: baseName[0],
+		Ext:  baseName[1],
+		Dir:  filepath.Dir(filePath),
+	}
+
+	return img, imgInfo, nil
 }
 
 func Save(imageFile image.Image, encodeExt, filePath string) (string, error) {
@@ -48,10 +60,10 @@ func Save(imageFile image.Image, encodeExt, filePath string) (string, error) {
 	case "gif":
 		err = gif.Encode(file, imageFile, nil)
 	}
-
 	if err != nil {
 		return "", err
 	}
+
 	return filePath, nil
 }
 
@@ -62,17 +74,7 @@ func Crop(imageFile image.Image, width, height, left, top int) image.Image {
 	return imageFile.(SubImage).SubImage(cropSize)
 }
 
-func GetImageInfo(file string) *ImageInfo {
-	baseName := strings.Split(filepath.Base(file), ".")
-
-	return &ImageInfo{
-		Name: baseName[0],
-		Ext:  baseName[1],
-		Dir:  filepath.Dir(file),
-	}
-}
-
-func FormatedOutput(imageInfo *ImageInfo, format string, index, localIndex int) string {
+func (i *ImageInfo) Format(format string, index, localIndex int) string {
 	replaceMap := map[string]string{
 		"{dir}":   "%[1]s",
 		"{name}":  "%[2]s",
@@ -91,5 +93,5 @@ func FormatedOutput(imageInfo *ImageInfo, format string, index, localIndex int) 
 		output = strings.ReplaceAll(output, key, value)
 	}
 
-	return fmt.Sprintf(output, imageInfo.Dir, imageInfo.Name, imageInfo.Ext, timeNow, dateNow, index, localIndex)
+	return fmt.Sprintf(output, i.Dir, i.Name, i.Ext, timeNow, dateNow, index, localIndex)
 }

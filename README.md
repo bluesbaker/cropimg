@@ -13,7 +13,7 @@ $ ...\cropimg.exe -s ".\**\*.png" -w 100 -h 200 -l 30 -t 40 -o "{dir}\{name}_{ti
 ```
 
 Flags:
-```bash
+```
 -source|-s <string>
     image(s) source:
         "./<image>.jpg" - .jpg-image
@@ -49,7 +49,7 @@ Flags:
 ```
 
 ## Version
-0.2.1
+0.2.3
 
 ### Author
 ___
