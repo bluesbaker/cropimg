@@ -21,14 +21,15 @@ func main() {
 
 	// check image(s) source
 	if flags.Source == "" {
-		fmt.Printf("Image source '%s' is empty\n", flags.Source)
+		fmt.Println("Image source is empty")
+		flag.Usage()
 		os.Exit(1)
 	}
 
 	// get image(s)
 	images, err := filepath.Glob(flags.Source)
-	if err != nil {
-		fmt.Println("Pattern is not readable", flags.Source)
+	if err != nil || len(images) == 0 {
+		fmt.Println("Source is not readable", flags.Source)
 		os.Exit(1)
 	}
 
